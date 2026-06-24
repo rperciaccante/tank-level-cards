@@ -544,7 +544,7 @@
 .rv${uid}{background:${panelBg};
   border-radius:var(--ha-card-border-radius,12px);padding:10px 6px 6px;
   box-sizing:border-box;width:100%;height:100%;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;min-width:120px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;min-width:0;
   cursor:${tapCursor};}
 .rv${uid} .nm{color:var(--secondary-text-color,#6a7a8a);font-size:${titleSize};
   font-family:var(--ha-card-header-font-family,ui-sans-serif,sans-serif);
@@ -1044,6 +1044,10 @@
   class RvTankLevelCard extends HTMLElement {
     setConfig(config) {
       if (!config.entity) throw new Error('rv-tank-level-card: entity is required');
+      this.style.display = 'block';
+      this.style.width = '100%';
+      this.style.minWidth = '0';
+      this.style.boxSizing = 'border-box';
       this._config = config;
       this._lastState = undefined;
       this._hasRendered = false;
@@ -1072,7 +1076,7 @@
     }
 
     _render() {
-      this.innerHTML = `<ha-card style="${cardBackgroundStyle(this._config)}height:100%;display:flex;">${tankMarkup(this._config, this._hass, this._hist)}</ha-card>`;
+      this.innerHTML = `<ha-card style="${cardBackgroundStyle(this._config)}height:100%;width:100%;min-width:0;box-sizing:border-box;display:flex;">${tankMarkup(this._config, this._hass, this._hist)}</ha-card>`;
       this._hasRendered = true;
     }
 
@@ -1133,6 +1137,10 @@
       if (!Array.isArray(config.tanks) || !config.tanks.length) {
         throw new Error('rv-tank-row-card: a non-empty `tanks` list is required');
       }
+      this.style.display = 'block';
+      this.style.width = '100%';
+      this.style.minWidth = '0';
+      this.style.boxSizing = 'border-box';
       this._config = config;
       this._hist = this._hist || {};
       // Delegate taps to the tank under the pointer (open its more-info).
@@ -1176,7 +1184,7 @@
       const rowWrap = orientation === 'vertical' ? 'nowrap' : 'wrap';
       const colFlex = orientation === 'vertical' ? '0 1 auto' : '1 1 120px';
       const colWidth = orientation === 'vertical' ? '100%' : 'auto';
-      this.innerHTML = `<ha-card style="${cardBackgroundStyle(cfg)}height:100%;display:flex;flex-direction:column;"><style>
+      this.innerHTML = `<ha-card style="${cardBackgroundStyle(cfg)}height:100%;width:100%;min-width:0;box-sizing:border-box;display:flex;flex-direction:column;"><style>
 .rvrow{display:flex;flex-direction:${rowDirection};gap:${tankGap};flex-wrap:${rowWrap};justify-content:center;align-items:center;padding:${rowPadding};flex:1;}
 .rvcol{display:flex;justify-content:center;flex:${colFlex};width:${colWidth};min-width:0;}
 .rvtitle{color:var(--primary-text-color);font-size:${rowTitleSize};font-weight:600;
@@ -1235,5 +1243,5 @@
       preview: true,
     },
   );
-  console.info('%cRV Tank Level Cards%c 0.2.10', 'color:#3a9aca;font-weight:700', 'color:inherit');
+  console.info('%cRV Tank Level Cards%c 0.2.11', 'color:#3a9aca;font-weight:700', 'color:inherit');
 })();

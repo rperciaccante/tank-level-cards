@@ -37,6 +37,7 @@ Two custom cards are included:
 - Home Assistant visual editor support for common options
 - Follows your dashboard theme; tap to open the entity's more-info dialog
 - Resizes cleanly in Sections (grid) view with compact default grid sizing
+- Works cleanly inside `horizontal-stack` without overlapping neighboring cards
 
 ## Installation
 

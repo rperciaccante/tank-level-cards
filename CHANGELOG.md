@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.11 - 2026-06-24
+
+- Fixes single tank cards overlapping when placed inside Home Assistant horizontal stacks.
+- Makes card hosts and wrappers flex-item safe with explicit block width and `min-width: 0`.
+
 ## 0.2.10 - 2026-06-24
 
 - Adds row-card `orientation` with `horizontal` and `vertical` layouts.
