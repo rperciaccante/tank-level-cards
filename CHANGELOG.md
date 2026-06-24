@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.12 - 2026-06-24
+
+- Fixes repeated tank cards clipping or losing left edges in stacks by making SVG ids unique per card instance.
+- Allows SVG stroke/glow overflow so tank edges remain visible in compact layouts.
+
 ## 0.2.11 - 2026-06-24
 
 - Fixes single tank cards overlapping when placed inside Home Assistant horizontal stacks.

@@ -38,6 +38,7 @@ Two custom cards are included:
 - Follows your dashboard theme; tap to open the entity's more-info dialog
 - Resizes cleanly in Sections (grid) view with compact default grid sizing
 - Works cleanly inside `horizontal-stack` without overlapping neighboring cards
+- Repeated cards in stacks use unique SVG ids so tank edges render correctly
 
 ## Installation
 

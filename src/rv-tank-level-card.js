@@ -63,6 +63,13 @@
  */
 
 (() => {
+  let RV_INSTANCE_ID = 0;
+
+  function nextInstanceId() {
+    RV_INSTANCE_ID += 1;
+    return `i${RV_INSTANCE_ID}`;
+  }
+
   // ── Color schemes ──────────────────────────────────────────────────────────
   const SCHEMES = {
     black: {
@@ -401,11 +408,13 @@
   //   cfg  — this tank's config
   //   hass — Home Assistant object (may be null before first update)
   //   hist — per-tank array used for the in-memory sparkline / trend
-  function tankMarkup(cfg, hass, hist) {
+  function tankMarkup(cfg, hass, hist, instanceId = '') {
     const name = cfg.name || cfg.entity;
     const c    = Object.assign({}, resolveScheme(cfg));
     c.tankBg = tankBackground(cfg);
-    const uid  = (cfg.entity || 'tank').replace(/\W/g, '_');
+    const uidBase = (cfg.entity || cfg.name || 'tank').replace(/\W/g, '_');
+    const uidSuffix = String(instanceId || '').replace(/\W/g, '_');
+    const uid = uidSuffix ? `${uidBase}_${uidSuffix}` : uidBase;
     const mw   = cfg.max_width;
     const maxW = (mw == null) ? '280px'
                : (mw === 'none' || mw === 'full') ? 'none'
@@ -550,7 +559,7 @@
   font-family:var(--ha-card-header-font-family,ui-sans-serif,sans-serif);
   text-transform:uppercase;letter-spacing:.1em;margin:0 auto 2px;width:100%;
   text-align:${align};line-height:1.25;}
-.rv${uid} svg{width:${svgWidth};max-width:${maxW};height:auto;display:block;margin:0 auto;}
+.rv${uid} svg{width:${svgWidth};max-width:${maxW};height:auto;display:block;margin:0 auto;overflow:visible;}
 .rv${uid} .wv{animation:rvWave_${uid} 3s linear infinite;}
 .rv${uid} .bb{animation:rvBub_${uid} var(--d) ease-in var(--dl) infinite;opacity:0;}
 @keyframes rvWave_${uid}{
@@ -1044,6 +1053,7 @@
   class RvTankLevelCard extends HTMLElement {
     setConfig(config) {
       if (!config.entity) throw new Error('rv-tank-level-card: entity is required');
+      this._uid = this._uid || nextInstanceId();
       this.style.display = 'block';
       this.style.width = '100%';
       this.style.minWidth = '0';
@@ -1076,7 +1086,7 @@
     }
 
     _render() {
-      this.innerHTML = `<ha-card style="${cardBackgroundStyle(this._config)}height:100%;width:100%;min-width:0;box-sizing:border-box;display:flex;">${tankMarkup(this._config, this._hass, this._hist)}</ha-card>`;
+      this.innerHTML = `<ha-card style="${cardBackgroundStyle(this._config)}height:100%;width:100%;min-width:0;box-sizing:border-box;display:flex;">${tankMarkup(this._config, this._hass, this._hist, this._uid)}</ha-card>`;
       this._hasRendered = true;
     }
 
@@ -1137,6 +1147,7 @@
       if (!Array.isArray(config.tanks) || !config.tanks.length) {
         throw new Error('rv-tank-row-card: a non-empty `tanks` list is required');
       }
+      this._uid = this._uid || nextInstanceId();
       this.style.display = 'block';
       this.style.width = '100%';
       this.style.minWidth = '0';
@@ -1167,12 +1178,12 @@
 
     _render() {
       const cfg = this._config;
-      const cols = cfg.tanks.map(t => {
+      const cols = cfg.tanks.map((t, idx) => {
         const merged = Object.assign({}, cfg.defaults, t);
         const key = (t.entity || '').replace(/\W/g, '_');
         this._hist[key] = this._hist[key] || [];
         return `<div class="rvcol" data-entity="${t.entity}">${
-          tankMarkup(merged, this._hass, this._hist[key])}</div>`;
+          tankMarkup(merged, this._hass, this._hist[key], `${this._uid}_${key || 'tank'}_${idx}`)}</div>`;
       }).join('');
       const title = cfg.title ? `<div class="rvtitle">${cfg.title}</div>` : '';
       const rowTitleSize = cssSize(cfg.title_font_size, '1rem');
@@ -1243,5 +1254,5 @@
       preview: true,
     },
   );
-  console.info('%cRV Tank Level Cards%c 0.2.11', 'color:#3a9aca;font-weight:700', 'color:inherit');
+  console.info('%cRV Tank Level Cards%c 0.2.12', 'color:#3a9aca;font-weight:700', 'color:inherit');
 })();
