@@ -236,6 +236,17 @@
     return s;
   }
 
+  function cardBackgroundValue(cfg) {
+    return cfg?.card_background == null ? '' : String(cfg.card_background).trim();
+  }
+
+  function cardBackgroundStyle(cfg) {
+    const bg = cardBackgroundValue(cfg);
+    if (!bg) return '';
+    if (bg === 'transparent' || bg === 'none') return 'background:transparent;box-shadow:none;border-color:transparent;';
+    return `background:${bg};`;
+  }
+
   // ── Side level markers (ticks) ───────────────────────────────────────────────
   //   cfg.ticks:  omitted          → default [0, 33, 66, 100]
   //               false/"none"/[]  → hidden
@@ -474,10 +485,13 @@
     const secY    = labelY + fontSize * 0.5 + 4;
 
     const tapCursor = (cfg.tap_action || 'more-info') === 'none' ? 'default' : 'pointer';
+    const cardBg = cardBackgroundValue(cfg);
+    const panelBg = cardBg ? (cardBg === 'none' ? 'transparent' : cardBg)
+      : 'var(--ha-card-background,var(--card-background-color,#080c14))';
 
     return `
 <style>
-.rv${uid}{background:var(--ha-card-background,var(--card-background-color,#080c14));
+.rv${uid}{background:${panelBg};
   border-radius:var(--ha-card-border-radius,12px);padding:10px 6px 6px;
   display:flex;flex-direction:column;align-items:center;flex:1;min-width:120px;
   cursor:${tapCursor};}
@@ -590,6 +604,7 @@
     { name: 'name', label: 'Name', selector: { text: {} } },
     { name: 'shape', label: 'Shape', selector: { select: { mode: 'dropdown', options: SHAPE_OPTIONS } } },
     { name: 'color_scheme', label: 'Color scheme / CSS color', selector: { text: {} } },
+    { name: 'card_background', label: 'Card background CSS value', selector: { text: {} } },
     { name: 'auto_color', label: 'Auto color', selector: { select: { mode: 'dropdown', options: AUTO_COLOR_OPTIONS } } },
     { name: 'tap_action', label: 'Tap action', selector: { select: { mode: 'dropdown', options: [
       { value: 'more-info', label: 'More info' },
@@ -614,16 +629,23 @@
     { name: 'name', label: 'Name', selector: { text: {} } },
     { name: 'shape', label: 'Shape', selector: { select: { mode: 'dropdown', options: SHAPE_OPTIONS } } },
     { name: 'color_scheme', label: 'Color scheme / CSS color', selector: { text: {} } },
+    { name: 'card_background', label: 'Card background CSS value', selector: { text: {} } },
     { name: 'auto_color', label: 'Auto color', selector: { select: { mode: 'dropdown', options: AUTO_COLOR_OPTIONS } } },
   ];
 
   const ROW_DEFAULTS_SCHEMA = [
     { name: 'shape', label: 'Default shape', selector: { select: { mode: 'dropdown', options: SHAPE_OPTIONS } } },
     { name: 'color_scheme', label: 'Default color scheme / CSS color', selector: { text: {} } },
+    { name: 'card_background', label: 'Default card background CSS value', selector: { text: {} } },
     { name: 'auto_color', label: 'Default auto color', selector: { select: { mode: 'dropdown', options: AUTO_COLOR_OPTIONS } } },
     { name: 'gradient', label: 'Default gradient fill', selector: { boolean: {} } },
     { name: 'sparkline', label: 'Default sparkline', selector: { boolean: {} } },
     { name: 'trend', label: 'Default trend arrow', selector: { boolean: {} } },
+  ];
+
+  const ROW_MAIN_SCHEMA = [
+    { name: 'title', label: 'Title', selector: { text: {} } },
+    { name: 'card_background', label: 'Card background CSS value', selector: { text: {} } },
   ];
 
   const formKeys = (schema) => schema.map((item) => item.name);
@@ -819,7 +841,7 @@
         <div class="editor">
           <div class="section">
             <h3>Row Card</h3>
-            ${editorForm('row-main-form', [{ name: 'title', label: 'Title', selector: { text: {} } }], cfg)}
+            ${editorForm('row-main-form', ROW_MAIN_SCHEMA, cfg)}
           </div>
 
           <div class="section">
@@ -858,8 +880,7 @@
 
     _updateForms() {
       const cfg = this._config || {};
-      configureHaForm(this.querySelector('#row-main-form'), this._hass,
-        [{ name: 'title', label: 'Title', selector: { text: {} } }], cfg);
+      configureHaForm(this.querySelector('#row-main-form'), this._hass, ROW_MAIN_SCHEMA, cfg);
       configureHaForm(this.querySelector('#row-defaults-form'), this._hass,
         ROW_DEFAULTS_SCHEMA, cfg.defaults || {});
       this.querySelectorAll('.tank-form').forEach((form) => {
@@ -894,6 +915,9 @@
         const title = value.title;
         if (title === '' || title == null) delete next.title;
         else next.title = title;
+        const cardBackground = value.card_background;
+        if (cardBackground === '' || cardBackground == null) delete next.card_background;
+        else next.card_background = cardBackground;
       } else if (form?.id === 'row-defaults-form') {
         ev.stopPropagation();
         const defaults = applyFormValues(next.defaults || {}, value, ROW_DEFAULTS_KEYS);
@@ -970,7 +994,7 @@
     }
 
     _render() {
-      this.innerHTML = `<ha-card>${tankMarkup(this._config, this._hass, this._hist)}</ha-card>`;
+      this.innerHTML = `<ha-card style="${cardBackgroundStyle(this._config)}">${tankMarkup(this._config, this._hass, this._hist)}</ha-card>`;
     }
 
     getCardSize() { return 4; }
@@ -1055,7 +1079,7 @@
           tankMarkup(merged, this._hass, this._hist[key])}</div>`;
       }).join('');
       const title = cfg.title ? `<div class="rvtitle">${cfg.title}</div>` : '';
-      this.innerHTML = `<ha-card><style>
+      this.innerHTML = `<ha-card style="${cardBackgroundStyle(cfg)}"><style>
 .rvrow{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;padding:6px;}
 .rvtitle{color:var(--primary-text-color);font-size:1rem;font-weight:600;
   padding:10px 14px 0;font-family:var(--ha-card-header-font-family,inherit);}
@@ -1101,5 +1125,5 @@
       preview: true,
     },
   );
-  console.info('%cRV Tank Level Cards%c 0.2.2', 'color:#3a9aca;font-weight:700', 'color:inherit');
+  console.info('%cRV Tank Level Cards%c 0.2.3', 'color:#3a9aca;font-weight:700', 'color:inherit');
 })();

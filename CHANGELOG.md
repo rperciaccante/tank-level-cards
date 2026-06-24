@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.3 - 2026-06-24
+
+- Adds `card_background` support for `transparent`, `none`, or any CSS background value.
+- Exposes card background styling in the visual editors.
+
 ## 0.2.2 - 2026-06-24
 
 - Prevents the visual editor from rebuilding its DOM while a field has focus, fixing number inputs jumping back to the top while typing.

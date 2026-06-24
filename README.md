@@ -24,6 +24,7 @@ Two custom cards are included:
 - `auto_color`: automatic green → amber → red by level (`fresh` or `waste`)
 - Value-driven styling (card-mod `state:` compatible): recolor the card
   background **and/or the liquid**, with `blink` support
+- `card_background` accepts `transparent` or any CSS color/background value
 - Configurable or hideable side level markers, with custom labels & colors
 - Threshold `markers` drawn across the tank
 - `secondary` templated text, `sparkline`, and `trend` arrow
@@ -122,6 +123,7 @@ The card background follows your dashboard theme (dark and light shown).
 | `name` | entity id | Card title. |
 | `color_scheme` | `blue` | `black` / `grey` / `blue`, or any CSS color. |
 | `colors` | — | Per-key overrides: `fill`, `wave`, `glow`, `border`, `text`, `bubble`, `tank_bg`. |
+| `card_background` | theme default | Card and tank-panel background. Use `transparent`, `none`, or any CSS background value such as `rgba(0,0,0,.25)`. |
 | `gradient` | `false` | Glossy top-lit liquid. |
 | `auto_color` | `false` | `true`/`fresh` (high = green) or `waste` (high = red). |
 | `shape` | `default` | `default` / `propane` / `rectangular`. |
