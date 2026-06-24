@@ -1,0 +1,57 @@
+# Example dashboard configs for rv-tank-level-card / rv-tank-row-card
+# Replace the sensor.* entities with your own.
+
+# 1) Basic black tank (waste colors)
+- type: custom:rv-tank-level-card
+  entity: sensor.black_tank_level
+  name: Black Tank
+  color_scheme: black
+
+# 2) Flat RV tank with auto-color (full = bad) and a low marker
+- type: custom:rv-tank-level-card
+  entity: sensor.grey_tank_level
+  name: Grey Tank
+  shape: rectangular
+  tank_width: 240
+  tank_height: 140
+  auto_color: waste
+  markers:
+    - { value: 90, label: FULL, color: "#e0b030" }
+    - { value: 15, label: LOW, color: red, dashed: true }
+
+# 3) Propane bottle, custom color, gradient, secondary text
+- type: custom:rv-tank-level-card
+  entity: sensor.propane_level
+  name: Propane
+  shape: propane
+  color_scheme: "#d98c2b"
+  gradient: true
+  secondary: "{state} / {attr:capacity} lb"
+
+# 4) Fresh water with threshold styling + blink when low
+- type: custom:rv-tank-level-card
+  entity: sensor.fresh_water_level
+  name: Fresh Water
+  color_scheme: blue
+  ticks: [0, 25, 50, 75, 100]
+  state:
+    - { value: 50, operator: ">=", color: "rgb(20,60,40)" }
+    - { value: 20, operator: ">=", color: "rgb(70,55,20)" }
+    - value: 20
+      operator: "<="
+      color: "rgb(80,20,20)"
+      fill: "#c0392b"
+      blink: true
+
+# 5) All three holding tanks in one card
+- type: custom:rv-tank-row-card
+  title: RV Holding Tanks
+  defaults:
+    shape: rectangular
+    tank_width: 170
+    tank_height: 150
+    ticks: [0, 50, 100]
+  tanks:
+    - { entity: sensor.black_tank_level, name: Black, auto_color: waste }
+    - { entity: sensor.grey_tank_level, name: Grey, color_scheme: "#6b5a4e" }
+    - { entity: sensor.fresh_water_level, name: Fresh, color_scheme: blue, auto_color: fresh }
