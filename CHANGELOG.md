@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0 - 2026-06-24
+
+- Reworks the visual editors to use Home Assistant's native `ha-form` controls.
+- Adds entity selectors and structured controls for row-card tanks and defaults.
+- Guards custom element registration for safer reloads.
+
 ## 0.1.0 - 2026-06-24
 
 - Initial local development setup for RV Tank Level Cards.

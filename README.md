@@ -62,6 +62,10 @@ Current build behavior intentionally copies `src/rv-tank-level-card.js` to
 local development setup faithful to the existing card until the source is split
 into modules.
 
+The Home Assistant visual editor uses HA's native `ha-form` controls for common
+settings. Advanced nested options remain available through the YAML editor and
+the editor's Advanced JSON sections.
+
 ## Quick start
 
 ```yaml

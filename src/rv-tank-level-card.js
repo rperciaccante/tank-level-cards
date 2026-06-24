@@ -572,34 +572,64 @@
   }
 
   // ── Visual editor helpers ──────────────────────────────────────────────────
-  function editorRow(key, label, value, type = 'text', attrs = '') {
-    const v = value == null ? '' : String(value);
-    return `<label class="field"><span>${label}</span>
-      <input data-key="${key}" type="${type}" value="${escapeAttr(v)}" ${attrs}/>
-    </label>`;
-  }
+  const SHAPE_OPTIONS = [
+    { value: 'default', label: 'Default / jerry-can' },
+    { value: 'propane', label: 'Propane' },
+    { value: 'rectangular', label: 'Rectangular' },
+    { value: 'flat', label: 'Flat alias' },
+  ];
 
-  function editorSelect(key, label, value, options) {
-    const v = value == null ? '' : String(value);
-    return `<label class="field"><span>${label}</span>
-      <select data-key="${key}">
-        ${options.map(([val, name]) => `<option value="${escapeAttr(val)}"${String(val) === v ? ' selected' : ''}>${name}</option>`).join('')}
-      </select>
-    </label>`;
-  }
+  const AUTO_COLOR_OPTIONS = [
+    { value: '', label: 'Off' },
+    { value: 'fresh', label: 'Fresh: high is good' },
+    { value: 'waste', label: 'Waste: high is bad' },
+  ];
 
-  function editorCheckbox(key, label, value) {
-    return `<label class="field check"><span>${label}</span>
-      <input data-key="${key}" type="checkbox"${value === true ? ' checked' : ''}/>
-    </label>`;
-  }
+  const TANK_FORM_SCHEMA = [
+    { name: 'entity', label: 'Entity', required: true, selector: { entity: { domain: 'sensor' } } },
+    { name: 'name', label: 'Name', selector: { text: {} } },
+    { name: 'shape', label: 'Shape', selector: { select: { mode: 'dropdown', options: SHAPE_OPTIONS } } },
+    { name: 'color_scheme', label: 'Color scheme / CSS color', selector: { text: {} } },
+    { name: 'auto_color', label: 'Auto color', selector: { select: { mode: 'dropdown', options: AUTO_COLOR_OPTIONS } } },
+    { name: 'tap_action', label: 'Tap action', selector: { select: { mode: 'dropdown', options: [
+      { value: 'more-info', label: 'More info' },
+      { value: 'none', label: 'None' },
+    ] } } },
+    { name: 'gradient', label: 'Gradient fill', selector: { boolean: {} } },
+    { name: 'sparkline', label: 'Sparkline', selector: { boolean: {} } },
+    { name: 'trend', label: 'Trend arrow', selector: { boolean: {} } },
+    { name: 'decimals', label: 'Decimals', selector: { number: { min: 0, mode: 'box' } } },
+    { name: 'font_size', label: 'Font size', selector: { number: { min: 8, mode: 'box' } } },
+    { name: 'max_width', label: 'Max width', selector: { text: {} } },
+    { name: 'value_format', label: 'Value format', selector: { text: {} } },
+    { name: 'secondary', label: 'Secondary text', selector: { text: {} } },
+    { name: 'icon', label: 'Icon', selector: { text: {} } },
+    { name: 'tank_width', label: 'Rectangular tank width', selector: { number: { min: 50, mode: 'box' } } },
+    { name: 'tank_height', label: 'Rectangular tank height', selector: { number: { min: 50, mode: 'box' } } },
+    { name: 'tank_radius', label: 'Rectangular tank radius', selector: { number: { min: 0, mode: 'box' } } },
+  ];
 
-  function editorTextarea(key, label, value, placeholder = '') {
-    const text = value == null ? '' : JSON.stringify(value, null, 2);
-    return `<label class="field wide"><span>${label}</span>
-      <textarea data-json-key="${key}" rows="5" placeholder="${escapeAttr(placeholder)}">${escapeHtml(text)}</textarea>
-    </label>`;
-  }
+  const ROW_TANK_SCHEMA = [
+    { name: 'entity', label: 'Entity', required: true, selector: { entity: { domain: 'sensor' } } },
+    { name: 'name', label: 'Name', selector: { text: {} } },
+    { name: 'shape', label: 'Shape', selector: { select: { mode: 'dropdown', options: SHAPE_OPTIONS } } },
+    { name: 'color_scheme', label: 'Color scheme / CSS color', selector: { text: {} } },
+    { name: 'auto_color', label: 'Auto color', selector: { select: { mode: 'dropdown', options: AUTO_COLOR_OPTIONS } } },
+  ];
+
+  const ROW_DEFAULTS_SCHEMA = [
+    { name: 'shape', label: 'Default shape', selector: { select: { mode: 'dropdown', options: SHAPE_OPTIONS } } },
+    { name: 'color_scheme', label: 'Default color scheme / CSS color', selector: { text: {} } },
+    { name: 'auto_color', label: 'Default auto color', selector: { select: { mode: 'dropdown', options: AUTO_COLOR_OPTIONS } } },
+    { name: 'gradient', label: 'Default gradient fill', selector: { boolean: {} } },
+    { name: 'sparkline', label: 'Default sparkline', selector: { boolean: {} } },
+    { name: 'trend', label: 'Default trend arrow', selector: { boolean: {} } },
+  ];
+
+  const formKeys = (schema) => schema.map((item) => item.name);
+  const TANK_FORM_KEYS = formKeys(TANK_FORM_SCHEMA);
+  const ROW_TANK_KEYS = formKeys(ROW_TANK_SCHEMA);
+  const ROW_DEFAULTS_KEYS = formKeys(ROW_DEFAULTS_SCHEMA);
 
   function escapeHtml(value) {
     return String(value)
@@ -616,28 +646,55 @@
     return `<style>
       .editor{display:grid;gap:14px;padding:8px 0;color:var(--primary-text-color);}
       .section{border:1px solid var(--divider-color,#2f3b45);border-radius:10px;padding:12px;}
-      .section h3{font-size:1rem;margin:0 0 10px;font-weight:600;}
-      .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;}
-      .field{display:flex;flex-direction:column;gap:5px;font-size:.9rem;}
+      .section h3,.tank-head h3{font-size:1rem;margin:0 0 10px;font-weight:600;}
+      .section summary{cursor:pointer;color:var(--primary-text-color);font-weight:600;}
+      .field{display:flex;flex-direction:column;gap:5px;font-size:.9rem;margin-top:10px;}
       .field span{color:var(--secondary-text-color);font-size:.8rem;}
-      .field.check{flex-direction:row;align-items:center;justify-content:space-between;}
-      .field.wide{grid-column:1/-1;}
-      input,select,textarea{box-sizing:border-box;width:100%;border:1px solid var(--divider-color,#2f3b45);
+      textarea{box-sizing:border-box;width:100%;border:1px solid var(--divider-color,#2f3b45);
         border-radius:8px;padding:8px;background:var(--card-background-color,#111827);color:var(--primary-text-color);}
       textarea{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.82rem;}
+      button{border:1px solid var(--divider-color,#2f3b45);border-radius:8px;padding:8px 10px;
+        background:var(--secondary-background-color,#1f2937);color:var(--primary-text-color);cursor:pointer;}
+      .tank{border:1px dashed var(--divider-color,#2f3b45);border-radius:10px;padding:10px;margin-top:10px;}
+      .tank-head{display:flex;align-items:center;justify-content:space-between;gap:10px;}
       .hint{color:var(--secondary-text-color);font-size:.8rem;margin-top:8px;}
       .error{color:var(--error-color,#db4437);font-size:.85rem;min-height:1.2em;}
     </style>`;
   }
 
-  function parseEditorValue(input) {
-    if (input.type === 'checkbox') return input.checked;
-    if (input.type === 'number') {
-      if (input.value === '') return undefined;
-      const n = Number(input.value);
-      return Number.isFinite(n) ? n : undefined;
+  function editorTextarea(key, label, value, placeholder = '') {
+    const text = value == null ? '' : JSON.stringify(value, null, 2);
+    return `<label class="field"><span>${label}</span>
+      <textarea data-json-key="${key}" rows="5" placeholder="${escapeAttr(placeholder)}">${escapeHtml(text)}</textarea>
+    </label>`;
+  }
+
+  function editorForm(id, schema, data) {
+    return `<ha-form id="${id}"></ha-form>`;
+  }
+
+  function normalizeFormData(config) {
+    const data = Object.assign({}, config);
+    if (data.auto_color === true) data.auto_color = 'fresh';
+    return data;
+  }
+
+  function applyFormValues(base, values, keys) {
+    const next = Object.assign({}, base);
+    for (const key of keys) {
+      const value = values[key];
+      if (value === '' || value == null) delete next[key];
+      else next[key] = value;
     }
-    return input.value === '' ? undefined : input.value;
+    return next;
+  }
+
+  function configureHaForm(form, hass, schema, data) {
+    if (!form) return;
+    form.hass = hass;
+    form.schema = schema;
+    form.data = normalizeFormData(data || {});
+    form.computeLabel = (item) => item.label || item.name;
   }
 
   function fireConfigChanged(el, config) {
@@ -654,13 +711,16 @@
       this._render();
     }
 
-    set hass(hass) { this._hass = hass; }
+    set hass(hass) {
+      this._hass = hass;
+      this._updateForms();
+    }
 
     connectedCallback() {
       if (!this._bound) {
         this._bound = true;
-        this.addEventListener('input', (ev) => this._handleInput(ev));
         this.addEventListener('change', (ev) => this._handleInput(ev));
+        this.addEventListener('value-changed', (ev) => this._handleFormChange(ev));
       }
       this._render();
     }
@@ -670,73 +730,40 @@
       this.innerHTML = `${editorStyles()}
         <div class="editor">
           <div class="section">
-            <h3>Tank</h3>
-            <div class="grid">
-              ${editorRow('entity', 'Entity', cfg.entity || '', 'text', 'required placeholder="sensor.black_tank_level"')}
-              ${editorRow('name', 'Name', cfg.name || '', 'text', 'placeholder="Black Tank"')}
-              ${editorSelect('shape', 'Shape', cfg.shape || 'default', [
-                ['default', 'Default / jerry-can'], ['propane', 'Propane'], ['rectangular', 'Rectangular'], ['flat', 'Flat alias'],
-              ])}
-              ${editorRow('color_scheme', 'Color scheme / CSS color', cfg.color_scheme || 'blue', 'text', 'list="rv-color-schemes"')}
-              <datalist id="rv-color-schemes"><option value="blue"><option value="black"><option value="grey"></datalist>
-              ${editorSelect('auto_color', 'Auto color', cfg.auto_color === true ? 'fresh' : (cfg.auto_color || ''), [
-                ['', 'Off'], ['fresh', 'Fresh: high is good'], ['waste', 'Waste: high is bad'],
-              ])}
-              ${editorSelect('tap_action', 'Tap action', cfg.tap_action || 'more-info', [
-                ['more-info', 'More info'], ['none', 'None'],
-              ])}
-            </div>
+            <h3>Tank Card</h3>
+            ${editorForm('tank-form', TANK_FORM_SCHEMA, cfg)}
           </div>
 
-          <div class="section">
-            <h3>Display</h3>
-            <div class="grid">
-              ${editorCheckbox('gradient', 'Gradient fill', cfg.gradient)}
-              ${editorCheckbox('sparkline', 'Sparkline', cfg.sparkline)}
-              ${editorCheckbox('trend', 'Trend arrow', cfg.trend)}
-              ${editorRow('decimals', 'Decimals', cfg.decimals, 'number', 'min="0" step="1"')}
-              ${editorRow('font_size', 'Font size', cfg.font_size, 'number', 'min="8" step="1"')}
-              ${editorRow('max_width', 'Max width', cfg.max_width, 'text', 'placeholder="280, full, none"')}
-              ${editorRow('value_format', 'Value format', cfg.value_format, 'text', 'placeholder="{value}%"')}
-              ${editorRow('secondary', 'Secondary text', cfg.secondary, 'text', 'placeholder="{state} / {attr:capacity} gal"')}
-              ${editorRow('icon', 'Icon', cfg.icon, 'text', 'placeholder="🚽"')}
-            </div>
-          </div>
-
-          <div class="section">
-            <h3>Rectangular Shape</h3>
-            <div class="grid">
-              ${editorRow('tank_width', 'Tank width', cfg.tank_width, 'number', 'min="50" step="1"')}
-              ${editorRow('tank_height', 'Tank height', cfg.tank_height, 'number', 'min="50" step="1"')}
-              ${editorRow('tank_radius', 'Tank radius', cfg.tank_radius, 'number', 'min="0" step="1"')}
-            </div>
-            <div class="hint">These apply to rectangular / flat tanks.</div>
-          </div>
-
-          <div class="section">
-            <h3>Advanced JSON</h3>
-            <div class="grid">
+          <details class="section">
+            <summary>Advanced JSON</summary>
               ${editorTextarea('colors', 'Colors', cfg.colors, '{ "fill": "#1a7", "wave": "#3c9" }')}
               ${editorTextarea('ticks', 'Ticks', cfg.ticks, '[0, 25, 50, 75, 100]')}
               ${editorTextarea('markers', 'Markers', cfg.markers, '[{ "value": 85, "label": "FULL" }]')}
               ${editorTextarea('state', 'State rules', cfg.state, '[{ "value": 15, "operator": "<=", "color": "red" }]')}
-            </div>
             <div class="error">${escapeHtml(this._error || '')}</div>
-          </div>
+          </details>
         </div>`;
+      this._updateForms();
+    }
+
+    _updateForms() {
+      configureHaForm(this.querySelector('#tank-form'), this._hass, TANK_FORM_SCHEMA, this._config);
+    }
+
+    _handleFormChange(ev) {
+      const form = ev.target;
+      if (form?.id !== 'tank-form') return;
+      ev.stopPropagation();
+      const next = applyFormValues(this._config || {}, ev.detail?.value || {}, TANK_FORM_KEYS);
+      this._error = '';
+      this._config = next;
+      fireConfigChanged(this, next);
     }
 
     _handleInput(ev) {
       const input = ev.target;
       if (!input?.dataset) return;
       const next = Object.assign({}, this._config || {});
-
-      if (input.dataset.key) {
-        const key = input.dataset.key;
-        const value = parseEditorValue(input);
-        if (value === undefined || value === '') delete next[key];
-        else next[key] = value;
-      }
 
       if (input.dataset.jsonKey) {
         const key = input.dataset.jsonKey;
@@ -753,7 +780,6 @@
         }
       }
 
-      if (next.auto_color === '') delete next.auto_color;
       this._error = '';
       this._config = next;
       fireConfigChanged(this, next);
@@ -766,44 +792,126 @@
       this._render();
     }
 
-    set hass(hass) { this._hass = hass; }
+    set hass(hass) {
+      this._hass = hass;
+      this._updateForms();
+    }
 
     connectedCallback() {
       if (!this._bound) {
         this._bound = true;
-        this.addEventListener('input', (ev) => this._handleInput(ev));
         this.addEventListener('change', (ev) => this._handleInput(ev));
+        this.addEventListener('click', (ev) => this._handleClick(ev));
+        this.addEventListener('value-changed', (ev) => this._handleFormChange(ev));
       }
       this._render();
     }
 
     _render() {
       const cfg = this._config || {};
+      const tanks = Array.isArray(cfg.tanks) ? cfg.tanks : [];
       this.innerHTML = `${editorStyles()}
         <div class="editor">
           <div class="section">
             <h3>Row Card</h3>
-            <div class="grid">
-              ${editorRow('title', 'Title', cfg.title || '', 'text', 'placeholder="RV Holding Tanks"')}
-              ${editorTextarea('defaults', 'Defaults', cfg.defaults, '{ "shape": "rectangular", "ticks": [0, 50, 100] }')}
-              ${editorTextarea('tanks', 'Tanks', cfg.tanks, '[{ "entity": "sensor.black_tank_level", "name": "Black" }]')}
-            </div>
-            <div class="hint">Tanks are edited as JSON so each tank can use the full single-card option set.</div>
-            <div class="error">${escapeHtml(this._error || '')}</div>
+            ${editorForm('row-main-form', [{ name: 'title', label: 'Title', selector: { text: {} } }], cfg)}
           </div>
+
+          <div class="section">
+            <h3>Defaults</h3>
+            ${editorForm('row-defaults-form', ROW_DEFAULTS_SCHEMA, cfg.defaults || {})}
+            <div class="hint">Defaults are merged under every tank.</div>
+          </div>
+
+          <div class="section">
+            <div class="tank-head">
+              <h3>Tanks</h3>
+              <button type="button" data-action="add-tank">Add Tank</button>
+            </div>
+            ${tanks.map((tank, idx) => `
+              <div class="tank">
+                <div class="tank-head">
+                  <h3>${escapeHtml(tank.name || tank.entity || `Tank ${idx + 1}`)}</h3>
+                  <button type="button" data-action="remove-tank" data-index="${idx}">Remove</button>
+                </div>
+                <ha-form class="tank-form" data-index="${idx}"></ha-form>
+              </div>
+            `).join('')}
+            <div class="hint">Use YAML for per-tank advanced options not shown here.</div>
+          </div>
+
+          <details class="section">
+            <summary>Advanced JSON</summary>
+            ${editorTextarea('defaults', 'Defaults JSON', cfg.defaults, '{ "shape": "rectangular", "ticks": [0, 50, 100] }')}
+            ${editorTextarea('tanks', 'Tanks JSON', cfg.tanks, '[{ "entity": "sensor.black_tank_level", "name": "Black" }]')}
+            <div class="error">${escapeHtml(this._error || '')}</div>
+          </details>
         </div>`;
+      this._updateForms();
+    }
+
+    _updateForms() {
+      const cfg = this._config || {};
+      configureHaForm(this.querySelector('#row-main-form'), this._hass,
+        [{ name: 'title', label: 'Title', selector: { text: {} } }], cfg);
+      configureHaForm(this.querySelector('#row-defaults-form'), this._hass,
+        ROW_DEFAULTS_SCHEMA, cfg.defaults || {});
+      this.querySelectorAll('.tank-form').forEach((form) => {
+        const idx = Number(form.dataset.index);
+        configureHaForm(form, this._hass, ROW_TANK_SCHEMA, (cfg.tanks || [])[idx] || {});
+      });
+    }
+
+    _handleClick(ev) {
+      const action = ev.target?.dataset?.action;
+      if (!action) return;
+      const next = Object.assign({}, this._config || {});
+      const tanks = Array.isArray(next.tanks) ? next.tanks.slice() : [];
+      if (action === 'add-tank') {
+        tanks.push({ entity: '', name: 'Tank' });
+      } else if (action === 'remove-tank') {
+        tanks.splice(Number(ev.target.dataset.index), 1);
+      }
+      next.tanks = tanks;
+      this._config = next;
+      this._render();
+      fireConfigChanged(this, next);
+    }
+
+    _handleFormChange(ev) {
+      const form = ev.target;
+      const value = ev.detail?.value || {};
+      const next = Object.assign({}, this._config || {});
+
+      if (form?.id === 'row-main-form') {
+        ev.stopPropagation();
+        const title = value.title;
+        if (title === '' || title == null) delete next.title;
+        else next.title = title;
+      } else if (form?.id === 'row-defaults-form') {
+        ev.stopPropagation();
+        const defaults = applyFormValues(next.defaults || {}, value, ROW_DEFAULTS_KEYS);
+        if (Object.keys(defaults).length) next.defaults = defaults;
+        else delete next.defaults;
+      } else if (form?.classList?.contains('tank-form')) {
+        ev.stopPropagation();
+        const idx = Number(form.dataset.index);
+        const tanks = Array.isArray(next.tanks) ? next.tanks.slice() : [];
+        tanks[idx] = applyFormValues(tanks[idx] || {}, value, ROW_TANK_KEYS);
+        next.tanks = tanks;
+      } else {
+        return;
+      }
+
+      this._error = '';
+      this._config = next;
+      fireConfigChanged(this, next);
     }
 
     _handleInput(ev) {
       const input = ev.target;
       if (!input?.dataset) return;
       const next = Object.assign({}, this._config || {});
-
-      if (input.dataset.key) {
-        const value = parseEditorValue(input);
-        if (value === undefined || value === '') delete next[input.dataset.key];
-        else next[input.dataset.key] = value;
-      }
 
       if (input.dataset.jsonKey) {
         const key = input.dataset.jsonKey;
@@ -885,8 +993,12 @@
     }
   }
 
-  customElements.define('rv-tank-level-card-editor', RvTankLevelCardEditor);
-  customElements.define('rv-tank-level-card', RvTankLevelCard);
+  if (!customElements.get('rv-tank-level-card-editor')) {
+    customElements.define('rv-tank-level-card-editor', RvTankLevelCardEditor);
+  }
+  if (!customElements.get('rv-tank-level-card')) {
+    customElements.define('rv-tank-level-card', RvTankLevelCard);
+  }
 
   // ── Multi-tank row card ──────────────────────────────────────────────────────
   // Renders several tanks side by side in one card. Each item in `tanks` is a
@@ -960,8 +1072,12 @@
     }
   }
 
-  customElements.define('rv-tank-row-card-editor', RvTankRowCardEditor);
-  customElements.define('rv-tank-row-card', RvTankRowCard);
+  if (!customElements.get('rv-tank-row-card-editor')) {
+    customElements.define('rv-tank-row-card-editor', RvTankRowCardEditor);
+  }
+  if (!customElements.get('rv-tank-row-card')) {
+    customElements.define('rv-tank-row-card', RvTankRowCard);
+  }
 
   // Register with HA card picker (HACS / manual resource discovery)
   window.customCards = window.customCards || [];
@@ -979,4 +1095,5 @@
       preview: true,
     },
   );
+  console.info('%cRV Tank Level Cards%c 0.2.0', 'color:#3a9aca;font-weight:700', 'color:inherit');
 })();
