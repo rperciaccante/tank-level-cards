@@ -51,7 +51,8 @@ Two custom cards are included:
 ## Development
 
 The editable source lives in `src/rv-tank-level-card.js`. The HACS/manual-install
-artifact is generated at `dist/rv-tank-level-card.js`.
+artifacts are generated at `rv-tank-level-card.js` and
+`dist/rv-tank-level-card.js`.
 
 ```bash
 npm run verify

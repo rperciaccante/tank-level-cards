@@ -5,22 +5,28 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const source = resolve(root, 'src/rv-tank-level-card.js');
-const target = resolve(root, 'dist/rv-tank-level-card.js');
+const targets = [
+  resolve(root, 'dist/rv-tank-level-card.js'),
+  resolve(root, 'rv-tank-level-card.js'),
+];
 
-const [sourceBytes, targetBytes] = await Promise.all([
+const [sourceBytes, ...targetBytes] = await Promise.all([
   readFile(source),
-  readFile(target),
+  ...targets.map((target) => readFile(target)),
 ]);
 
 const hash = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const sourceHash = hash(sourceBytes);
-const targetHash = hash(targetBytes);
 
-if (sourceHash !== targetHash) {
-  console.error('dist/rv-tank-level-card.js is out of date. Run npm run build.');
-  console.error(`src:  ${sourceHash}`);
-  console.error(`dist: ${targetHash}`);
-  process.exit(1);
+for (let i = 0; i < targets.length; i++) {
+  const targetHash = hash(targetBytes[i]);
+  if (sourceHash !== targetHash) {
+    const rel = targets[i].replace(`${root}/`, '');
+    console.error(`${rel} is out of date. Run npm run build.`);
+    console.error(`src:    ${sourceHash}`);
+    console.error(`${rel}: ${targetHash}`);
+    process.exit(1);
+  }
 }
 
-console.log('Verified dist matches src');
+console.log('Verified distributable files match src');

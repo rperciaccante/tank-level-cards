@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1 - 2026-06-24
+
+- Restores the root `rv-tank-level-card.js` artifact for HACS/resource URL compatibility.
+- Points `hacs.json` back at the root artifact so existing HACS installs update the file HA loads.
+
 ## 0.2.0 - 2026-06-24
 
 - Reworks the visual editors to use Home Assistant's native `ha-form` controls.

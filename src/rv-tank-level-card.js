@@ -1095,5 +1095,5 @@
       preview: true,
     },
   );
-  console.info('%cRV Tank Level Cards%c 0.2.0', 'color:#3a9aca;font-weight:700', 'color:inherit');
+  console.info('%cRV Tank Level Cards%c 0.2.1', 'color:#3a9aca;font-weight:700', 'color:inherit');
 })();

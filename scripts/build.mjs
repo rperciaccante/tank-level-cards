@@ -4,9 +4,14 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const source = resolve(root, 'src/rv-tank-level-card.js');
-const target = resolve(root, 'dist/rv-tank-level-card.js');
+const targets = [
+  resolve(root, 'dist/rv-tank-level-card.js'),
+  resolve(root, 'rv-tank-level-card.js'),
+];
 
-await mkdir(dirname(target), { recursive: true });
-await copyFile(source, target);
+for (const target of targets) {
+  await mkdir(dirname(target), { recursive: true });
+  await copyFile(source, target);
+}
 
-console.log('Built dist/rv-tank-level-card.js from src/rv-tank-level-card.js');
+console.log('Built rv-tank-level-card.js and dist/rv-tank-level-card.js from src/rv-tank-level-card.js');
