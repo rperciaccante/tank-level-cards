@@ -279,6 +279,10 @@
     return Math.max(0.25, Math.min(2, n));
   }
 
+  function rowOrientation(value) {
+    return value === 'vertical' ? 'vertical' : 'horizontal';
+  }
+
   function tankBackground(cfg) {
     const explicit = cfg.colors && typeof cfg.colors === 'object' ? cfg.colors.tank_bg : null;
     if (explicit != null) return String(explicit);
@@ -653,6 +657,11 @@
     { value: 'right', label: 'Right' },
   ];
 
+  const ROW_ORIENTATION_OPTIONS = [
+    { value: 'horizontal', label: 'Horizontal' },
+    { value: 'vertical', label: 'Vertical' },
+  ];
+
   const TANK_FORM_SCHEMA = [
     { name: 'entity', label: 'Entity', required: true, selector: { entity: { domain: 'sensor' } } },
     { name: 'name', label: 'Name', selector: { text: {} } },
@@ -711,6 +720,7 @@
     { name: 'card_background', label: 'Card background CSS value', selector: { text: {} } },
     { name: 'title_font_size', label: 'Heading font size', selector: { text: {} } },
     { name: 'title_align', label: 'Heading alignment', selector: { select: { mode: 'dropdown', options: TITLE_ALIGN_OPTIONS } } },
+    { name: 'orientation', label: 'Orientation', selector: { select: { mode: 'dropdown', options: ROW_ORIENTATION_OPTIONS } } },
     { name: 'row_padding', label: 'Outer padding', selector: { text: {} } },
     { name: 'tank_gap', label: 'Gap between tanks', selector: { text: {} } },
   ];
@@ -1153,7 +1163,7 @@
         const merged = Object.assign({}, cfg.defaults, t);
         const key = (t.entity || '').replace(/\W/g, '_');
         this._hist[key] = this._hist[key] || [];
-        return `<div class="rvcol" data-entity="${t.entity}" style="flex:1;min-width:120px;display:flex;">${
+        return `<div class="rvcol" data-entity="${t.entity}">${
           tankMarkup(merged, this._hass, this._hist[key])}</div>`;
       }).join('');
       const title = cfg.title ? `<div class="rvtitle">${cfg.title}</div>` : '';
@@ -1161,8 +1171,14 @@
       const rowTitleAlign = titleAlign(cfg.title_align);
       const rowPadding = cssSize(cfg.row_padding, '6px');
       const tankGap = cssSize(cfg.tank_gap, '6px');
+      const orientation = rowOrientation(cfg.orientation);
+      const rowDirection = orientation === 'vertical' ? 'column' : 'row';
+      const rowWrap = orientation === 'vertical' ? 'nowrap' : 'wrap';
+      const colFlex = orientation === 'vertical' ? '0 1 auto' : '1 1 120px';
+      const colWidth = orientation === 'vertical' ? '100%' : 'auto';
       this.innerHTML = `<ha-card style="${cardBackgroundStyle(cfg)}height:100%;display:flex;flex-direction:column;"><style>
-.rvrow{display:flex;gap:${tankGap};flex-wrap:wrap;justify-content:center;align-items:center;padding:${rowPadding};flex:1;}
+.rvrow{display:flex;flex-direction:${rowDirection};gap:${tankGap};flex-wrap:${rowWrap};justify-content:center;align-items:center;padding:${rowPadding};flex:1;}
+.rvcol{display:flex;justify-content:center;flex:${colFlex};width:${colWidth};min-width:0;}
 .rvtitle{color:var(--primary-text-color);font-size:${rowTitleSize};font-weight:600;
   padding:10px 14px 0;font-family:var(--ha-card-header-font-family,inherit);
   text-align:${rowTitleAlign};line-height:1.25;}
@@ -1219,5 +1235,5 @@
       preview: true,
     },
   );
-  console.info('%cRV Tank Level Cards%c 0.2.9', 'color:#3a9aca;font-weight:700', 'color:inherit');
+  console.info('%cRV Tank Level Cards%c 0.2.10', 'color:#3a9aca;font-weight:700', 'color:inherit');
 })();

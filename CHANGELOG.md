@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.10 - 2026-06-24
+
+- Adds row-card `orientation` with `horizontal` and `vertical` layouts.
+
 ## 0.2.9 - 2026-06-24
 
 - Adds row-card `row_padding` and `tank_gap` layout controls.

@@ -114,6 +114,7 @@ green→amber→red coloring, and an in-session history line / ▲▼ trend arro
 ### Multiple tanks in one card
 `rv-tank-row-card` with shared `defaults` and per-tank overrides.
 Row-card outer padding and tank gap are configurable.
+Row-card orientation can be horizontal or vertical.
 
 ![Multi-tank card](images/multi-tank.png)
 
@@ -188,6 +189,7 @@ Operators: `>=` `>` `<=` `<` `==` `!=` (default `>=`).
 | `card_background` | Optional row-card wrapper background; same behavior as `rv-tank-level-card`. |
 | `title_font_size` | Optional row-card heading font size. Numbers are treated as px; CSS sizes are accepted. |
 | `title_align` | Optional row-card heading alignment: `left`, `center`, or `right`. |
+| `orientation` | Row orientation: `horizontal` (default) or `vertical`. |
 | `row_padding` | Outer padding around the tank row. Numbers are treated as px; CSS sizes like `0`, `8px`, or `0.5rem` are accepted. |
 | `tank_gap` | Gap between tanks. Numbers are treated as px; CSS sizes are accepted. |
 
