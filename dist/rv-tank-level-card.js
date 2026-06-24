@@ -539,7 +539,8 @@
 <style>
 .rv${uid}{background:${panelBg};
   border-radius:var(--ha-card-border-radius,12px);padding:10px 6px 6px;
-  display:flex;flex-direction:column;align-items:center;flex:1;min-width:120px;
+  box-sizing:border-box;width:100%;height:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;min-width:120px;
   cursor:${tapCursor};}
 .rv${uid} .nm{color:var(--secondary-text-color,#6a7a8a);font-size:${titleSize};
   font-family:var(--ha-card-header-font-family,ui-sans-serif,sans-serif);
@@ -572,6 +573,7 @@
       </linearGradient>` : ''}
     </defs>
 
+    ${g.decor}
     ${g.cap}
     ${g.shell}
 
@@ -602,7 +604,6 @@
     </g>
 
     ${g.shellEdge}
-    ${g.decor}
 
     ${TICKS.map(t => {
       const ty = tY + tH * (1 - t.value / 100);
@@ -1059,25 +1060,22 @@
     }
 
     _render() {
-      this.innerHTML = `<ha-card style="${cardBackgroundStyle(this._config)}">${tankMarkup(this._config, this._hass, this._hist)}</ha-card>`;
+      this.innerHTML = `<ha-card style="${cardBackgroundStyle(this._config)}height:100%;display:flex;">${tankMarkup(this._config, this._hass, this._hist)}</ha-card>`;
       this._hasRendered = true;
     }
 
     getCardSize() { return 4; }
 
-    // Sections (grid) view: default the card's height to the tank's aspect
-    // ratio so a flat/wide tank doesn't reserve tall empty space. Calibrated
-    // against the default shape (aspect 360/280 → 6 rows at 6 columns); other
-    // shapes/sizes scale from there. Still drag-resizable between the bounds.
+    // Sections (grid) view: pick a compact default footprint. Users can still
+    // resize manually, but new cards should not reserve a huge empty block.
     getGridOptions() {
       const cfg    = this._config || {};
       const shape  = (cfg.shape || 'default').toLowerCase();
-      const gutter = resolveTicks(cfg).length ? 60 : 18;
-      const g      = tankGeometry(shape, cfg, {}, 'grid', gutter);
-      const R0      = 360 / 280;             // default-shape aspect ratio
-      const columns = 6;
-      const rows    = Math.max(2, Math.round(columns * (g.vbH / g.vbW) / R0));
-      return { rows, columns, min_rows: 2, min_columns: 3, max_columns: 12 };
+      const hasTicks = resolveTicks(cfg).length > 0;
+      const wide = shape === 'rectangular' || shape === 'flat';
+      const columns = wide || hasTicks ? 4 : 3;
+      const rows = wide ? 3 : 4;
+      return { rows, columns, min_rows: 2, min_columns: 2, max_columns: 8 };
     }
 
     static getStubConfig() {
@@ -1159,8 +1157,8 @@
       const title = cfg.title ? `<div class="rvtitle">${cfg.title}</div>` : '';
       const rowTitleSize = cssSize(cfg.title_font_size, '1rem');
       const rowTitleAlign = titleAlign(cfg.title_align);
-      this.innerHTML = `<ha-card style="${cardBackgroundStyle(cfg)}"><style>
-.rvrow{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;padding:6px;}
+      this.innerHTML = `<ha-card style="${cardBackgroundStyle(cfg)}height:100%;display:flex;flex-direction:column;"><style>
+.rvrow{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;align-items:center;padding:6px;flex:1;}
 .rvtitle{color:var(--primary-text-color);font-size:${rowTitleSize};font-weight:600;
   padding:10px 14px 0;font-family:var(--ha-card-header-font-family,inherit);
   text-align:${rowTitleAlign};line-height:1.25;}
@@ -1169,7 +1167,7 @@
 
     getCardSize() { return 4; }
     getGridOptions() {
-      return { rows: 6, columns: 12, min_rows: 3, min_columns: 4, max_columns: 12 };
+      return { rows: 4, columns: 6, min_rows: 3, min_columns: 4, max_columns: 12 };
     }
     static getStubConfig() {
       return {
@@ -1217,5 +1215,5 @@
       preview: true,
     },
   );
-  console.info('%cRV Tank Level Cards%c 0.2.7', 'color:#3a9aca;font-weight:700', 'color:inherit');
+  console.info('%cRV Tank Level Cards%c 0.2.8', 'color:#3a9aca;font-weight:700', 'color:inherit');
 })();

@@ -27,6 +27,7 @@ Two custom cards are included:
 - `card_background` accepts `transparent` or any CSS color/background value;
   the empty tank interior follows it unless `colors.tank_bg` is set
 - Tank caps/fittings follow the tank background and border colors
+- Propane foot-ring decoration is masked behind the tank shell
 - Percentage text automatically contrasts against the active liquid color
 - Title font size and alignment are configurable; wrapped titles stay aligned
 - `tank_scale` shrinks or enlarges tank SVGs inside cramped dashboard blocks
@@ -35,7 +36,7 @@ Two custom cards are included:
 - `secondary` templated text, `sparkline`, and `trend` arrow
 - Home Assistant visual editor support for common options
 - Follows your dashboard theme; tap to open the entity's more-info dialog
-- Resizes cleanly in Sections (grid) view
+- Resizes cleanly in Sections (grid) view with compact default grid sizing
 
 ## Installation
 
@@ -189,6 +190,11 @@ Operators: `>=` `>` `<=` `<` `==` `!=` (default `>=`).
 
 Per-tank options such as `tank_scale`, `title_font_size`, and `title_align` can
 be set on each item in `tanks` or shared through `defaults`.
+
+In Home Assistant Sections view, new single-tank cards default to a compact
+3-4 column footprint depending on shape/ticks, and content stays centered when
+the block is resized. Use `tank_scale` and `max_width` together for very small
+or very large section blocks.
 
 > **Note on `sparkline`/`trend`:** history is kept in memory for the current
 > browser session (it resets on reload). For long-term history use a

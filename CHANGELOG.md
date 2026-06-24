@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.8 - 2026-06-24
+
+- Improves Home Assistant Sections defaults so new single-tank cards use a compact grid footprint.
+- Centers card content vertically and horizontally inside resized Sections blocks.
+- Reduces the default row-card Sections footprint.
+- Draws propane foot-ring decoration behind the tank shell instead of in front.
+
 ## 0.2.7 - 2026-06-24
 
 - Adds configurable title font size and alignment for tank titles and row-card headings.
