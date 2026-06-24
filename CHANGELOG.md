@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.5 - 2026-06-24
+
+- Fixes the Home Assistant card picker preview for single-tank cards when the stub entity does not exist.
+
 ## 0.2.4 - 2026-06-24
 
 - Improves percentage and secondary-text contrast against auto-colored or state-colored liquid fills.

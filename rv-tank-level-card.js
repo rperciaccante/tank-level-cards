@@ -988,6 +988,7 @@
       if (!config.entity) throw new Error('rv-tank-level-card: entity is required');
       this._config = config;
       this._lastState = undefined;
+      this._hasRendered = false;
       this._hist = this._hist || [];
       // Tap → open the entity's more-info dialog (disable with tap_action: none).
       // Bound once; survives innerHTML re-renders since it lives on the element.
@@ -1000,12 +1001,13 @@
           this.dispatchEvent(ev);
         });
       }
+      this._render();
     }
 
     set hass(hass) {
       if (!this._config) return;
       const state = hass.states[this._config.entity]?.state;
-      if (state === this._lastState) return; // skip re-render if unchanged
+      if (this._hasRendered && state === this._lastState) return; // skip re-render if unchanged
       this._lastState = state;
       this._hass = hass;
       this._render();
@@ -1013,6 +1015,7 @@
 
     _render() {
       this.innerHTML = `<ha-card style="${cardBackgroundStyle(this._config)}">${tankMarkup(this._config, this._hass, this._hist)}</ha-card>`;
+      this._hasRendered = true;
     }
 
     getCardSize() { return 4; }
@@ -1080,6 +1083,7 @@
           this.dispatchEvent(e);
         });
       }
+      this._render();
     }
 
     set hass(hass) {
@@ -1143,5 +1147,5 @@
       preview: true,
     },
   );
-  console.info('%cRV Tank Level Cards%c 0.2.4', 'color:#3a9aca;font-weight:700', 'color:inherit');
+  console.info('%cRV Tank Level Cards%c 0.2.5', 'color:#3a9aca;font-weight:700', 'color:inherit');
 })();
