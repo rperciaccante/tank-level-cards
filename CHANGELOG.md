@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.2 - 2026-06-24
+
+- Prevents the visual editor from rebuilding its DOM while a field has focus, fixing number inputs jumping back to the top while typing.
+
 ## 0.2.1 - 2026-06-24
 
 - Restores the root `rv-tank-level-card.js` artifact for HACS/resource URL compatibility.

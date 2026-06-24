@@ -708,12 +708,13 @@
   class RvTankLevelCardEditor extends HTMLElement {
     setConfig(config) {
       this._config = Object.assign({}, config);
-      this._render();
+      if (!this._rendered) this._render();
+      else if (!this.matches(':focus-within')) this._updateForms();
     }
 
     set hass(hass) {
       this._hass = hass;
-      this._updateForms();
+      if (!this.matches(':focus-within')) this._updateForms();
     }
 
     connectedCallback() {
@@ -722,7 +723,7 @@
         this.addEventListener('change', (ev) => this._handleInput(ev));
         this.addEventListener('value-changed', (ev) => this._handleFormChange(ev));
       }
-      this._render();
+      if (!this._rendered) this._render();
     }
 
     _render() {
@@ -743,6 +744,7 @@
             <div class="error">${escapeHtml(this._error || '')}</div>
           </details>
         </div>`;
+      this._rendered = true;
       this._updateForms();
     }
 
@@ -788,13 +790,16 @@
 
   class RvTankRowCardEditor extends HTMLElement {
     setConfig(config) {
+      const oldCount = Array.isArray(this._config?.tanks) ? this._config.tanks.length : 0;
+      const newCount = Array.isArray(config?.tanks) ? config.tanks.length : 0;
       this._config = Object.assign({}, config);
-      this._render();
+      if (!this._rendered || oldCount !== newCount) this._render();
+      else if (!this.matches(':focus-within')) this._updateForms();
     }
 
     set hass(hass) {
       this._hass = hass;
-      this._updateForms();
+      if (!this.matches(':focus-within')) this._updateForms();
     }
 
     connectedCallback() {
@@ -804,7 +809,7 @@
         this.addEventListener('click', (ev) => this._handleClick(ev));
         this.addEventListener('value-changed', (ev) => this._handleFormChange(ev));
       }
-      this._render();
+      if (!this._rendered) this._render();
     }
 
     _render() {
@@ -847,6 +852,7 @@
             <div class="error">${escapeHtml(this._error || '')}</div>
           </details>
         </div>`;
+      this._rendered = true;
       this._updateForms();
     }
 
@@ -1095,5 +1101,5 @@
       preview: true,
     },
   );
-  console.info('%cRV Tank Level Cards%c 0.2.1', 'color:#3a9aca;font-weight:700', 'color:inherit');
+  console.info('%cRV Tank Level Cards%c 0.2.2', 'color:#3a9aca;font-weight:700', 'color:inherit');
 })();

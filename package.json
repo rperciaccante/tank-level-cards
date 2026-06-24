@@ -1,6 +1,6 @@
 {
   "name": "rv-level-cards",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "description": "Animated RV tank level cards for Home Assistant Lovelace dashboards.",
   "type": "module",
