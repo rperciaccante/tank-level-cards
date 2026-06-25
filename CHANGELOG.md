@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 - 2026-06-25
+
+- Updates documentation and tooling paths for the renamed GitHub repository: `tank-level-cards`.
+
 ## 0.3.0 - 2026-06-25
 
 - Renames user-facing branding to **Tank Level Cards** while keeping existing `custom:rv-*` card types for compatibility.

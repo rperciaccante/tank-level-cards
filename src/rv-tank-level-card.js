@@ -1312,5 +1312,5 @@
       preview: true,
     },
   );
-  console.info('%cTank Level Cards%c 0.3.0', 'color:#3a9aca;font-weight:700', 'color:inherit');
+  console.info('%cTank Level Cards%c 0.3.1', 'color:#3a9aca;font-weight:700', 'color:inherit');
 })();

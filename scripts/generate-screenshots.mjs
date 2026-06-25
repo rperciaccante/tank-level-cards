@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const imageDir = resolve(root, 'images');
-const tmpDir = resolve('/var/folders/46/k7lvmswn02xfsh91kk_xc7t80000gn/T/opencode', 'rv-level-cards-screenshots');
+const tmpDir = resolve('/var/folders/46/k7lvmswn02xfsh91kk_xc7t80000gn/T/opencode', 'tank-level-cards-screenshots');
 const chrome = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
 mkdirSync(imageDir, { recursive: true });

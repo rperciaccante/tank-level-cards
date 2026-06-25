@@ -48,7 +48,7 @@ Two custom cards are included. The custom element names retain the original
 1. HACS → ⋮ → **Custom repositories** → add this repo's URL, category **Dashboard**.
 2. Install **Tank Level Cards**.
 3. HACS adds the resource automatically. If you added it manually, use:
-   - URL: `/hacsfiles/rv-level-cards/rv-tank-level-card.js`
+   - URL: `/hacsfiles/tank-level-cards/rv-tank-level-card.js`
    - Type: **JavaScript module**
 
 ### Manual
