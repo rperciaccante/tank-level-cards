@@ -1,12 +1,13 @@
 {
   "name": "rv-level-cards",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "private": true,
   "description": "Animated RV tank level cards for Home Assistant Lovelace dashboards.",
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
     "check": "node --check src/rv-tank-level-card.js && node --check scripts/build.mjs && node --check scripts/verify-dist.mjs && node -e \"JSON.parse(require('node:fs').readFileSync('hacs.json', 'utf8'))\"",
+    "screenshots": "npm run build && node scripts/generate-screenshots.mjs",
     "verify": "npm run check && npm run build && node scripts/verify-dist.mjs"
   },
   "keywords": [

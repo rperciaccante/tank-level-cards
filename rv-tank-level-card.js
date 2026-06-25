@@ -1198,13 +1198,18 @@
       const rowWrap = orientation === 'vertical' ? 'nowrap' : 'wrap';
       const colFlex = orientation === 'vertical' ? '0 1 auto' : '1 1 120px';
       const colWidth = orientation === 'vertical' ? '100%' : 'auto';
+      const scope = String(this._uid || 'row').replace(/\W/g, '_');
+      const rowClass = `rvrow_${scope}`;
+      const colClass = `rvcol_${scope}`;
+      const titleClass = `rvtitle_${scope}`;
+      const scopedCols = cols.replace(/class="rvcol"/g, `class="${colClass}"`);
       this.innerHTML = `<ha-card style="${cardBackgroundStyle(cfg)}height:100%;width:100%;min-width:0;box-sizing:border-box;display:flex;flex-direction:column;"><style>
-.rvrow{display:flex;flex-direction:${rowDirection};gap:${tankGap};flex-wrap:${rowWrap};justify-content:center;align-items:center;padding:${rowPadding};flex:1;}
-.rvcol{display:flex;justify-content:center;flex:${colFlex};width:${colWidth};min-width:0;}
-.rvtitle{color:var(--primary-text-color);font-size:${rowTitleSize};font-weight:600;
+.${rowClass}{display:flex;flex-direction:${rowDirection};gap:${tankGap};flex-wrap:${rowWrap};justify-content:center;align-items:center;padding:${rowPadding};flex:1;}
+.${colClass}{display:flex;justify-content:center;flex:${colFlex};width:${colWidth};min-width:0;}
+.${titleClass}{color:var(--primary-text-color);font-size:${rowTitleSize};font-weight:600;
   padding:10px 14px 0;font-family:var(--ha-card-header-font-family,inherit);
   text-align:${rowTitleAlign};line-height:1.25;}
-</style>${title}<div class="rvrow">${cols}</div></ha-card>`;
+</style>${title ? `<div class="${titleClass}">${cfg.title}</div>` : ''}<div class="${rowClass}">${scopedCols}</div></ha-card>`;
     }
 
     getCardSize() { return 4; }
@@ -1257,5 +1262,5 @@
       preview: true,
     },
   );
-  console.info('%cRV Tank Level Cards%c 0.2.13', 'color:#3a9aca;font-weight:700', 'color:inherit');
+  console.info('%cRV Tank Level Cards%c 0.2.14', 'color:#3a9aca;font-weight:700', 'color:inherit');
 })();

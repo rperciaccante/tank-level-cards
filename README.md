@@ -90,6 +90,10 @@ multi-tank card, markers, auto-color, propane, and threshold styling.
 
 ## Screenshots
 
+Screenshots are generated from the current card implementation and show the
+theme-aware background, top-aligned titles, propane shape, row orientation, and
+new spacing/scaling controls.
+
 ### Tank colors & gradient
 Any CSS color drives the whole palette; `colors:` overrides individual parts,
 and `gradient: true` adds a glossy top-lit fill.
@@ -107,9 +111,9 @@ Custom levels, per-tick labels and colors, or hidden entirely.
 
 ![Ticks](images/ticks.png)
 
-### Markers, secondary text, auto-color, sparkline & trend
+### Markers, secondary text, and auto-color
 Threshold lines across the tank, templated text under the %, automatic
-green→amber→red coloring, and an in-session history line / ▲▼ trend arrow.
+green→amber→red coloring, and theme-aware empty tank backgrounds.
 
 ![Advanced features](images/features.png)
 

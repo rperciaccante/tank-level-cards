@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.14 - 2026-06-24
+
+- Scopes row-card layout CSS per card instance so vertical and horizontal row cards can coexist on the same dashboard.
+- Regenerates README screenshots from the current implementation.
+
 ## 0.2.13 - 2026-06-24
 
 - Expands the row-card visual editor so per-tank rows expose the same scalar options as single-tank cards.
